@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"panthera/lexer"
+	"panthera/token"
 )
 
 const PROMPT = ">> "
@@ -19,10 +21,9 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
-		// lx := lexer.New(line)
-		// for token := lx.NextToken(); token.Type != token.EOF; token = lx.NextToken() {
-		// 	fmt.Printf("%+v\n", token)
-		// }
-		fmt.Println(line)
+		lx := lexer.New(line)
+		for tok := lx.NextToken(); tok.Type != token.EOF; tok = lx.NextToken() {
+			fmt.Printf("%+v\n", tok)
+		}
 	}
 }
