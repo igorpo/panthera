@@ -34,7 +34,31 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '=':
-		tok = newToken(token.ASSIGN, string(l.ch))
+		if l.peek() == '=' {
+			l.nextChar()
+			tok = newToken(token.EQ, "="+string(l.ch))
+		} else {
+			tok = newToken(token.ASSIGN, string(l.ch))
+		}
+	case '+':
+		tok = newToken(token.PLUS, string(l.ch))
+	case '-':
+		tok = newToken(token.MINUS, string(l.ch))
+	case '!':
+		if l.peek() == '=' {
+			l.nextChar()
+			tok = newToken(token.NEQ, "!"+string(l.ch))
+		} else {
+			tok = newToken(token.BANG, string(l.ch))
+		}
+	case '/':
+		tok = newToken(token.SLASH, string(l.ch))
+	case '*':
+		tok = newToken(token.ASTERISK, string(l.ch))
+	case '<':
+		tok = newToken(token.LT, string(l.ch))
+	case '>':
+		tok = newToken(token.GT, string(l.ch))
 	case ';':
 		tok = newToken(token.SEMICOLON, string(l.ch))
 	case '(':
@@ -43,8 +67,6 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.RPAREN, string(l.ch))
 	case ',':
 		tok = newToken(token.COMMA, string(l.ch))
-	case '+':
-		tok = newToken(token.PLUS, string(l.ch))
 	case '{':
 		tok = newToken(token.LBRACE, string(l.ch))
 	case '}':
@@ -103,5 +125,13 @@ func newToken(tokenType token.TokenType, ch string) token.Token {
 func (l *Lexer) consumeWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.nextChar()
+	}
+}
+
+func (l *Lexer) peek() byte {
+	if l.nextPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.nextPosition]
 	}
 }
