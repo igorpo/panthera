@@ -29,6 +29,7 @@ func (l *Lexer) nextChar() {
 }
 
 func (l *Lexer) NextToken() token.Token {
+	l.consumeWhitespace()
 	var tok token.Token
 
 	switch l.ch {
@@ -50,6 +51,17 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.RBRACE, string(l.ch))
 	case 0:
 		tok = newToken(token.EOF, "")
+	default:
+		if isLetter(l.ch) {
+			ident := l.parseIdentifier()
+
+			// we do not need another call to nextChar() because of how our parseIdentifier() works
+			return newToken(token.LookupIdentifier(ident), ident)
+		} else if isNumber(l.ch) {
+			return newToken(token.INT, l.parseNumber())
+		} else {
+			tok = newToken(token.ILLEGAL, string(l.ch))
+		}
 	}
 
 	// update position in input
@@ -57,9 +69,39 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
+func (l *Lexer) parseIdentifier() string {
+	start := l.position
+	for isLetter(l.ch) {
+		l.nextChar()
+	}
+	return l.input[start:l.position]
+}
+
+func (l *Lexer) parseNumber() string {
+	start := l.position
+	for isNumber(l.ch) {
+		l.nextChar()
+	}
+	return l.input[start:l.position]
+}
+
+func isLetter(ch byte) bool {
+	return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_'
+}
+
+func isNumber(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+
 func newToken(tokenType token.TokenType, ch string) token.Token {
 	return token.Token{
 		Type:    tokenType,
 		Literal: ch,
+	}
+}
+
+func (l *Lexer) consumeWhitespace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.nextChar()
 	}
 }
