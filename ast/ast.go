@@ -34,6 +34,11 @@ type Identifier struct {
 	Value string
 }
 
+type ReturnStatement struct {
+	Token       token.Token // RETURN token
+	ReturnValue Expression
+}
+
 func (p *Program) PrintToken() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].PrintToken()
@@ -51,4 +56,10 @@ func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) PrintToken() string {
 	return i.Token.Literal
+}
+
+func (rs *ReturnStatement) statementNode() {}
+
+func (rs *ReturnStatement) PrintToken() string {
+	return rs.Token.Literal
 }
